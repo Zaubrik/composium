@@ -7,8 +7,6 @@ import {
   ServeInit,
   serveTls,
   ServeTlsInit,
-  Status,
-  STATUS_TEXT,
 } from "./deps.ts";
 
 type CtxHandler<C extends Context> = (ctx: C) => C | Promise<C>;
@@ -28,9 +26,7 @@ type Method =
 export class Context {
   error: Error | null = null;
   params: URLPatternResult = {} as URLPatternResult;
-  response: Response = new Response(STATUS_TEXT[Status.NotFound], {
-    status: Status.NotFound,
-  });
+  response: Response = new Response("Not Found", { status: 404 });
   constructor(readonly request: Request, readonly connInfo: ConnInfo) {
   }
 }
