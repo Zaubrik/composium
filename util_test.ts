@@ -17,5 +17,5 @@ async function subtract10Delayed(n: number) {
 Deno.test("overview", async function () {
   assertEquals(await composeAsync(add10)(10), 20);
   assertEquals(await composeAsync(add10, times10)(10), 110);
-  assertEquals(await composeAsync(add10, subtract10Delayed, times10)(10), 100);
+  assertEquals(await composeAsync(add10, times10, subtract10Delayed)(10), 10);
 });
