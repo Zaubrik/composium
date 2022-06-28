@@ -8,7 +8,7 @@ the
 
 ## URL Pattern
 
-The best way to learn and test the URL Pattern API is using our free
+The best way to learn and test the URL Pattern API is Zaubrik's free
 [URL Pattern User Interface](https://dev.zaubrik.com/urlpattern/).
 
 ## Example
