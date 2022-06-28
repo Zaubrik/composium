@@ -1,5 +1,11 @@
 // deno-lint-ignore-file
-import { compose, Context, createHandler, createRoute, listen } from "./mod.ts";
+import {
+  composeAsync,
+  Context,
+  createHandler,
+  createRoute,
+  listen,
+} from "./mod.ts";
 
 class Ctx extends Context {
   state: any = {};
@@ -32,7 +38,7 @@ async function finalSay(ctx: Ctx) {
 }
 
 const routeGet = createRoute("GET");
-const firstAndSecond = compose(second, first);
+const firstAndSecond = composeAsync(second, first);
 
 const firstHandler = routeGet({ pathname: "*" })(third, firstAndSecond);
 const secondHandler = routeGet({ pathname: "*" })(firstAndSecond);
