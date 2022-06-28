@@ -1,19 +1,4 @@
-# composium
-
-With the power of
-[functional composition](https://en.wikipedia.org/wiki/Function_composition) and
-the
-[URL Pattern API](https://developer.mozilla.org/en-US/docs/Web/API/URL_Pattern_API),
-`composium` has become the simplest routing framework in the world.
-
-## URL Pattern
-
-The best way to learn and test the URL Pattern API is using our free
-[URL Pattern User Interface](https://dev.zaubrik.com/urlpattern/).
-
-## Example
-
-```ts
+// deno-lint-ignore-file
 import { compose, Context, createHandler, createRoute, listen } from "./mod.ts";
 
 class Ctx extends Context {
@@ -61,8 +46,3 @@ const handler = createHandler(Ctx)(secondHandler, firstHandler)(catchHandler)(
 );
 
 await listen({ port: 8080 })(handler);
-```
-
-## Dependency
-
-The `http/server.ts` module from Deno's `std` library.

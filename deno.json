@@ -1,0 +1,13 @@
+{
+  "tasks": {
+    "test": "deno test --doc --unstable --allow-all"
+  },
+  "compilerOptions": {
+    "lib": ["esnext", "dom", "dom.iterable", "deno.ns"],
+    "importsNotUsedAsValues": "preserve",
+    "strict": true,
+    "useUnknownInCatchVariables": true,
+    "noImplicitOverride": true,
+    "checkJs": true
+  }
+}
