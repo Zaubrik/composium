@@ -4,7 +4,6 @@
   },
   "compilerOptions": {
     "lib": ["esnext", "dom", "dom.iterable", "deno.ns"],
-    "importsNotUsedAsValues": "preserve",
     "strict": true,
     "useUnknownInCatchVariables": true,
     "noImplicitOverride": true,
