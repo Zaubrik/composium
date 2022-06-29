@@ -22,7 +22,16 @@ type Method =
   | "PUT"
   | "TRACE";
 
-/** The extendable `Context` is passed as only argument to your `CtxHandler`s. */
+/**
+ * The extendable `Context` is passed as only argument to your `CtxHandler`s.
+ * You can optionally extend the default `Context` object.
+ * ```ts
+ * class Ctx extends Context {
+ *   url = new URL(this.request.url);
+ *   state: any = {};
+ * }
+ * ```
+ */
 export class Context {
   error: Error | null = null;
   params: URLPatternResult = {} as URLPatternResult;
@@ -34,6 +43,9 @@ export class Context {
 /**
  * A curried function which takes HTTP `Method`s, a `URLPatternInput` and
  * `CtxHandler`s and returns in the end a composed route function.
+ * ```ts
+ * createRoute("GET")({ pathname: "*" })(ctxHandler)
+ * ```
  */
 export function createRoute(...methods: Method[]) {
   return (urlPatternInput: URLPatternInput) => {
@@ -57,6 +69,9 @@ export function createRoute(...methods: Method[]) {
  * A curried function which takes `Context` class, `mainHandlers`, `catchHandlers`
  * and `finallyHandlers` and returns in the end a `Handler` which can be passed
  * to `listen`.
+ * ```ts
+ * createHandler(Ctx)(routeGet)(catchHandler)(finallyHandler)
+ * ```
  */
 export function createHandler<C extends Context>(
   contextClass: new (request: Request, connInfo: ConnInfo) => C,
