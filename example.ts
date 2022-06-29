@@ -54,6 +54,7 @@ function log(ctx: Ctx) {
   return ctx;
 }
 
+// This is just a showcase. You can compose all of it to much fewer lines of code.
 const routeGet = createRoute("GET");
 const routeAllAndEverything = createRoute("ALL")({ pathname: "*" });
 const routePrivate = createRoute("DELETE", "POST")({ pathname: "/private/*" });
