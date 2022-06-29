@@ -83,6 +83,7 @@ function log(ctx: Ctx) {
   return ctx;
 }
 
+// This is just a showcase. You can compose all of it to much fewer lines of code.
 const routeGet = createRoute("GET");
 const routeAllAndEverything = createRoute("ALL")({ pathname: "*" });
 const routePrivate = createRoute("DELETE", "POST")({ pathname: "/private/*" });
@@ -103,7 +104,7 @@ const mainHandler = compose(
   handleWelcome,
   handleVerify,
   handleDate,
-) as any; // WTF
+) as any; // WTF!
 const catchHandler = routeAllAndEverything(fix);
 const finallyHandler = routeAllAndEverything(log, setHeader);
 
