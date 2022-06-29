@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-unsafe-finally no-cond-assign
-import { composeAsync } from "./util.ts";
+import { compose, composeSync } from "./util.ts";
 import {
   ConnInfo,
   Handler,
@@ -41,7 +41,7 @@ export function createRoute(...methods: Method[]) {
           methods.includes(ctx.request.method as Method)
         ) {
           if (ctx.params = urlPattern.exec(ctx.request.url)!) {
-            return await (composeAsync(...handlers) as CtxHandler<C>)(ctx);
+            return await (compose(...handlers) as CtxHandler<C>)(ctx);
           }
         }
         return ctx;
@@ -58,7 +58,7 @@ export function createHandler<C extends Context>(
         async (request: Request, connInfo: ConnInfo): Promise<Response> => {
           const ctx = new contextClass(request, connInfo);
           try {
-            await (composeAsync(...normalHandler)(ctx));
+            await (compose(...normalHandler)(ctx));
           } catch (caught) {
             if (caught instanceof Response) {
               ctx.response = caught;
@@ -66,10 +66,10 @@ export function createHandler<C extends Context>(
               ctx.error = caught instanceof Error
                 ? caught
                 : new Error("[non-error thrown]");
-              await (composeAsync(...catchHandler)(ctx));
+              await (compose(...catchHandler)(ctx));
             }
           } finally {
-            await (composeAsync(...finallyHandler)(ctx));
+            await (compose(...finallyHandler)(ctx));
             return ctx.response;
           }
         };
@@ -83,4 +83,4 @@ export function listen(options: ServeInit | ServeTlsInit) {
   };
 }
 
-export { composeAsync };
+export { compose, composeSync };
