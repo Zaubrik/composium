@@ -4,7 +4,9 @@ Powered by
 [functional composition](https://en.wikipedia.org/wiki/Function_composition) and
 the
 [URL Pattern API](https://developer.mozilla.org/en-US/docs/Web/API/URL_Pattern_API),
-`composium` has become the simplest routing framework in the world.
+`composium` has become the simplest routing framework in the world. Through its
+flexibility it can serve perfectly as _generic_, _abstract_ and _minimal_ layer
+for **your own back-end framework**.
 
 ## URL Pattern
 
@@ -20,55 +22,96 @@ import {
   createHandler,
   createRoute,
   listen,
-} from "https://deno.land/x/composium/mod.ts"
+} from "https://deno.land/x/composium/mod.ts";
 
+// You can optionally extend the default `Context` object.
 class Ctx extends Context {
-  state: any = {}
-  url = new URL(this.request.url)
+  url = new URL(this.request.url);
+  state: any = {};
 }
 
-function first(ctx: Ctx) {
-  ctx.response = new Response("first")
-  console.log("first")
-  return ctx
-}
-function second(ctx: Ctx) {
-  ctx.response = new Response("second")
-  console.log("second")
-  // throw new Error("uups");
-  return ctx
-}
-function third(ctx: Ctx) {
-  ctx.response = new Response("third")
-  console.log("third")
-  return ctx
-}
-async function catchIt(ctx: Ctx) {
-  console.log("caught")
-  return ctx
-}
-async function finalSay(ctx: Ctx) {
-  console.log("finally")
-  return ctx
+function date(ctx: Ctx) {
+  ctx.state.start = Date.now();
+  return ctx;
 }
 
-const routeGet = createRoute("GET")
-const firstAndSecond = compose(second, first)
+function verify(ctx: Ctx) {
+  const authHeader = ctx.request.headers.get("Authorization");
+  if (!authHeader) throw new Error("Unauthorized");
+  return ctx;
+}
 
-const firstHandler = routeGet({ pathname: "*" })(third, firstAndSecond)
-const secondHandler = routeGet({ pathname: "*" })(firstAndSecond)
-const catchHandler = createRoute("POST", "GET", "DELETE")({ pathname: "*" })(
-  catchIt
-)
-const finallyHandler = createRoute("ALL")({ pathname: "*" })(finalSay)
+function greet(ctx: Ctx) {
+  ctx.response = new Response(`Hello World!`);
+  return ctx;
+}
 
-const handler = createHandler(Ctx)(secondHandler, firstHandler)(catchHandler)(
-  finallyHandler
-)
+function welcome(ctx: Ctx) {
+  const name = ctx.params.pathname.groups.name;
+  if (name) ctx.response = new Response(`Welcome, ${name}!`);
+  return ctx;
+}
 
-await listen({ port: 8080 })(handler)
+function sub(ctx: Ctx) {
+  ctx.response = new Response(
+    `What's up ${ctx.params.hostname.groups.subdomain}?`,
+  );
+  return ctx;
+}
+
+function fix(ctx: Ctx) {
+  console.error(ctx.error?.message);
+  ctx.response = new Response("Unauthorized", { status: 401 });
+  return ctx;
+}
+
+function setHeader(ctx: Ctx) {
+  const ms = Date.now() - ctx.state.start;
+  ctx.response.headers.set("X-Response-Time", `${ms}ms`);
+  return ctx;
+}
+
+function log(ctx: Ctx) {
+  const rt = ctx.response.headers.get("X-Response-Time");
+  console.log(`${ctx.request.method} ${ctx.url.pathname} - ${String(rt)}`);
+  return ctx;
+}
+
+const routeGet = createRoute("GET");
+const routeAllAndEverything = createRoute("ALL")({ pathname: "*" });
+const routePrivate = createRoute("DELETE", "POST")({ pathname: "/private/*" });
+const getSubdomain = routeGet({
+  hostname: `{:subdomain.}+localhost`,
+  pathname: "*",
+});
+
+const greetOrWelcome = compose(welcome, greet);
+
+const handleDate = routeAllAndEverything(date);
+const handleVerify = routePrivate(verify);
+const handleWelcome = routeGet({ pathname: "/{:name}?" })(greetOrWelcome);
+const handleSubdomain = getSubdomain(sub);
+
+const mainHandler = compose(
+  handleSubdomain,
+  handleWelcome,
+  handleVerify,
+  handleDate,
+) as any;
+const catchHandler = routeAllAndEverything(fix);
+const finallyHandler = routeAllAndEverything(log, setHeader);
+
+const handler = createHandler(Ctx)(mainHandler)(catchHandler)(finallyHandler);
+
+await listen({ port: 8080 })(handler);
 ```
 
 ## Dependency
 
 The `http/server.ts` module from Deno's `std` library.
+
+## Todo
+
+- Change type from `ctx.error` inside the `catch` handler from `Error | null` to
+  `Error`.
+- Similar for `ctx.params`.
