@@ -4,14 +4,20 @@ Powered by
 [functional composition](https://en.wikipedia.org/wiki/Function_composition) and
 the
 [URL Pattern API](https://developer.mozilla.org/en-US/docs/Web/API/URL_Pattern_API),
-`composium` has become the simplest routing framework in the world. Through its
-flexibility it can serve perfectly as _generic_, _abstract_ and _minimal_ layer
-for **your own back-end framework**.
+`composium` has become the most flexible routing framework in the world. Through
+its composability it can serve perfectly as _generic_, _abstract_ and _minimal_
+layer for **your own back-end framework**.
 
 ## URL Pattern
 
 The best way to learn and test the URL Pattern API is Zaubrik's free
 [URL Pattern User Interface](https://dev.zaubrik.com/urlpattern/).
+
+## Documentation
+
+```bash
+deno doc https://deno.land/x/composium/mod.ts
+```
 
 ## Example
 
@@ -108,10 +114,10 @@ await listen({ port: 8080 })(handler);
 
 ## Dependency
 
-The `http/server.ts` module from Deno's `std` library.
+The `http` module from Deno's `std` library.
 
 ## Todo
 
-- Change type from `ctx.error` inside the `catch` handler from `Error | null` to
+- Change type of `ctx.error` inside the `catch` handler from `Error | null` to
   `Error`.
 - Similar for `ctx.params`.

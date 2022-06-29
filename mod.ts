@@ -32,8 +32,8 @@ export class Context {
 }
 
 /**
- * A curried function which takes http `Method`s, a `URLPatternInput` and
- * `CtxHandler`s and returns in the end a composed handler function.
+ * A curried function which takes HTTP `Method`s, a `URLPatternInput` and
+ * `CtxHandler`s and returns in the end a composed route function.
  */
 export function createRoute(...methods: Method[]) {
   return (urlPatternInput: URLPatternInput) => {
@@ -54,8 +54,9 @@ export function createRoute(...methods: Method[]) {
 }
 
 /**
- * Takes `Context` class, `mainHandlers`, `catchHandlers` and `finallyHandlers`
- * and returns in the end a `Handler` which can be passed to `listen`.
+ * A curried function which takes `Context` class, `mainHandlers`, `catchHandlers`
+ * and `finallyHandlers` and returns in the end a `Handler` which can be passed
+ * to `listen`.
  */
 export function createHandler<C extends Context>(
   contextClass: new (request: Request, connInfo: ConnInfo) => C,
@@ -84,8 +85,9 @@ export function createHandler<C extends Context>(
 }
 
 /**
- * Constructs a server, creates a listener on the given address, accepts
- * incoming connections, upgrades them to TLS, and handles requests.
+ * A curried function which constructs a server, creates a listener on the given
+ * address, accepts incoming connections, upgrades them to TLS, and handles
+ * requests.
  * ```ts
  * await app.listen({ port: 8080 })(handler)
  * ```
