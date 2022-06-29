@@ -5,8 +5,8 @@ Powered by
 the
 [URL Pattern API](https://developer.mozilla.org/en-US/docs/Web/API/URL_Pattern_API),
 `composium` has become the most flexible routing framework in the world. Through
-its composability it can serve perfectly as _generic_, _abstract_ and _minimal_
-layer for **your own back-end framework**.
+its composability it can serve perfectly as a _generic_, _abstract_ and
+_minimal_ layer for **your own back-end framework**.
 
 ## URL Pattern
 
