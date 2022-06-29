@@ -74,7 +74,7 @@ const mainHandler = compose(
   handleWelcome,
   handleVerify,
   handleDate,
-) as any;
+) as any; // WTF
 const catchHandler = routeAllAndEverything(fix);
 const finallyHandler = routeAllAndEverything(log, setHeader);
 
