@@ -1,10 +1,8 @@
-// deno-lint-ignore-file
 import { compose, Context, createHandler, createRoute, listen } from "./mod.ts";
 
-// You can optionally extend the default `Context` object.
-class Ctx extends Context {
+// You can optionally extend the default `Context` object or pass a `State` type.
+export class Ctx extends Context<{ start: number }> {
   url = new URL(this.request.url);
-  state: any = {};
 }
 
 function date(ctx: Ctx) {
@@ -75,6 +73,7 @@ const mainHandler = compose(
   handleWelcome,
   handleVerify,
   handleDate,
+  // deno-lint-ignore no-explicit-any
 ) as any; // WTF!
 const catchHandler = routeAllAndEverything(fix);
 const finallyHandler = routeAllAndEverything(log, setHeader);

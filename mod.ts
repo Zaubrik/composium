@@ -21,6 +21,10 @@ type Method =
   | "POST"
   | "PUT"
   | "TRACE";
+/** Any object can be assigned to the property `state` of the `Context` object. */
+type State = Record<string | number | symbol, unknown>;
+// deno-lint-ignore no-explicit-any
+type DefaultState = Record<string, any>;
 
 /**
  * The extendable `Context` is passed as only argument to your `CtxHandler`s.
@@ -32,10 +36,11 @@ type Method =
  * }
  * ```
  */
-export class Context {
+export class Context<S extends State = DefaultState> {
   error: Error | null = null;
   params: URLPatternResult = {} as URLPatternResult;
   response: Response = new Response("Not Found", { status: 404 });
+  state = {} as S;
   constructor(readonly request: Request, readonly connInfo: ConnInfo) {
   }
 }
