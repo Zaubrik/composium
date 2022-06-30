@@ -1,9 +1,4 @@
 // deno-lint-ignore-file
-
-/*
-   * Async
-   */
-
 // https://stackoverflow.com/questions/70050001/javascript-how-to-compose-asynchronous-functions
 const compose2 = (f: any, g: any) =>
   async (...args: any) => f(await g(...args));
@@ -58,22 +53,6 @@ function compose1(...funcs: Function[]) {
   return funcs.reduce(compose2);
 }
 
-/**
- * Composes single-argument functions from right to left. The rightmost
- * function can take multiple arguments as it provides the signature for the
- * resulting composite function. It accepts sync and async functions.
- *
- * @param funcs The sync and async functions to compose.
- * @returns A function obtained by composing the argument functions from right
- *   to left. For example, `compose(f, g, h)` is identical to doing
- *   `(...args) => f(g(h(...args)))`.
- */
-export const compose = compose1; // Needs renaming for `deno doc`
-
-/*
-   * Sync
-   */
-
 function composeSync1(): <R>(a: R) => R;
 
 function composeSync1<F extends Function>(f: F): F;
@@ -119,6 +98,18 @@ function composeSync1(...funcs: Function[]) {
 
   return funcs.reduce((a, b) => (...args: any) => a(b(...args)));
 }
+
+/**
+ * Composes single-argument functions from right to left. The rightmost
+ * function can take multiple arguments as it provides the signature for the
+ * resulting composite function. It accepts sync and async functions.
+ *
+ * @param funcs The sync and async functions to compose.
+ * @returns A function obtained by composing the argument functions from right
+ *   to left. For example, `compose(f, g, h)` is identical to doing
+ *   `(...args) => f(g(h(...args)))`.
+ */
+export const compose = compose1; // Needs renaming for `deno doc`
 
 /**
  * Composes single-argument functions from right to left. The rightmost
