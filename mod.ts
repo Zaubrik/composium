@@ -28,10 +28,10 @@ type DefaultState = Record<string, any>;
 
 /**
  * The extendable `Context` is passed as only argument to your `CtxHandler`s.
- * You can optionally extend the default `Context` object.
+ * You can optionally extend the default `Context` object or pass a `State` type.
  * ```ts
- * class Ctx extends Context {
- *   url = new URL(this.request.url);
+ * export class Ctx extends Context<{ start: number }> {
+ * url = new URL(this.request.url);
  * }
  * ```
  */
@@ -76,8 +76,8 @@ export function createRoute(...methods: Method[]) {
 
 /**
  * A curried function which takes `Context` class, `mainHandlers`, `catchHandlers`
- * and `finallyHandlers` and returns in the end a `Handler` which can be passed
- * to `listen`.
+ * and `finallyHandlers` and returns in the end a `Handler` function which can be
+ * passed to `listen`.
  * ```ts
  * createHandler(Ctx)(routeGet)(catchHandler)(finallyHandler)
  * ```

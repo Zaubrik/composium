@@ -54,7 +54,7 @@ function throwHandler(ctx: Ctx) {
 
 Deno.test("createRoute", async function () {
   assertEquals(
-    (await createRoute("GET")({ pathname: "/books" })(add10Handler)(
+    (await createRoute("ALL")({ pathname: "/books" })(add10Handler)(
       new Ctx(request, connInfo, { result: 10 }),
     )).state.result,
     20,
@@ -80,6 +80,16 @@ Deno.test("createRoute", async function () {
   );
   assertEquals(
     (await createRoute("POST", "DELETE")({ pathname: "/books" })(mainHandler)(
+      new Ctx(
+        request,
+        connInfo,
+        { result: 10 },
+      ),
+    )).state.result,
+    10,
+  );
+  assertEquals(
+    (await createRoute("GET")({ pathname: "/ups" })(mainHandler)(
       new Ctx(
         request,
         connInfo,
