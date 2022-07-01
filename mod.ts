@@ -37,11 +37,16 @@ type DefaultState = Record<string, any>;
  * ```
  */
 export class Context<S extends State = DefaultState> {
+  connInfo: ConnInfo;
   error: Error | null = null;
   params: URLPatternResult = {} as URLPatternResult;
+  request: Request;
   response: Response = new Response("Not Found", { status: 404 });
-  state = {} as S;
-  constructor(readonly request: Request, readonly connInfo: ConnInfo) {
+  state: S;
+  constructor(request: Request, connInfo: ConnInfo, state?: S) {
+    this.request = request;
+    this.connInfo = connInfo;
+    this.state = state || {} as S;
   }
 }
 
@@ -78,14 +83,15 @@ export function createRoute(...methods: Method[]) {
  * createHandler(Ctx)(routeGet)(catchHandler)(finallyHandler)
  * ```
  */
-export function createHandler<C extends Context>(
-  contextClass: new (request: Request, connInfo: ConnInfo) => C,
+export function createHandler<C extends Context, S>(
+  contextClass: new (request: Request, connInfo: ConnInfo, state?: S) => C,
+  state?: S,
 ) {
   return (...mainHandler: CtxHandler<C>[]) =>
     (...catchHandler: CtxHandler<C>[]) =>
       (...finallyHandler: CtxHandler<C>[]) =>
         async (request: Request, connInfo: ConnInfo): Promise<Response> => {
-          const ctx = new contextClass(request, connInfo);
+          const ctx = new contextClass(request, connInfo, state);
           try {
             await (compose(...mainHandler)(ctx));
           } catch (caught) {
