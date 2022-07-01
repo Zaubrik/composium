@@ -32,7 +32,6 @@ type DefaultState = Record<string, any>;
  * ```ts
  * class Ctx extends Context {
  *   url = new URL(this.request.url);
- *   state: any = {};
  * }
  * ```
  */
