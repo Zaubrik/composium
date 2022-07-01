@@ -115,9 +115,3 @@ await listen({ port: 8080 })(handler);
 ## Dependency
 
 The `http` module from Deno's `std` library.
-
-## Todo
-
-- Change type of `ctx.error` inside the `catch` handler from `Error | null` to
-  `Error`.
-- Similar for `ctx.params`.
