@@ -84,14 +84,14 @@ export function createRoute(...methods: Method[]) {
  * ```
  */
 export function createHandler<C extends Context, S>(
-  contextClass: new (request: Request, connInfo: ConnInfo, state?: S) => C,
+  Context: new (request: Request, connInfo: ConnInfo, state?: S) => C,
   state?: S,
 ) {
   return (...mainHandler: CtxHandler<C>[]) =>
     (...catchHandler: CtxHandler<C>[]) =>
       (...finallyHandler: CtxHandler<C>[]) =>
         async (request: Request, connInfo: ConnInfo): Promise<Response> => {
-          const ctx = new contextClass(request, connInfo, state);
+          const ctx = new Context(request, connInfo, state);
           try {
             await (compose(...mainHandler)(ctx));
           } catch (caught) {
