@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-unsafe-finally no-cond-assign
-import { compose, composeSync } from "./util.ts";
+import { compose, composeSync } from "./composition.ts";
 import {
   ConnInfo,
   Handler,

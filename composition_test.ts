@@ -1,5 +1,5 @@
 // deno-lint-ignore-file
-import { compose, composeSync } from "./util.ts";
+import { compose, composeSync } from "./composition.ts";
 import { assertEquals, delay } from "./test_deps.ts";
 import {
   add10,
