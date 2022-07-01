@@ -1,3 +1,4 @@
+// deno-lint-ignore-file
 import { compose, composeSync } from "./util.ts";
 import { assertEquals, delay } from "./test_deps.ts";
 import {

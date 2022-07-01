@@ -1,3 +1,4 @@
+// deno-lint-ignore-file
 import { compose, Context, createHandler, createRoute } from "./mod.ts";
 import {
   add10,
