@@ -31,7 +31,7 @@ type DefaultState = Record<string, any>;
  * You can optionally extend the default `Context` object or pass a `State` type.
  * ```ts
  * export class Ctx extends Context<{ start: number }> {
- * url = new URL(this.request.url);
+ *   pathname = this.url.pathname;
  * }
  * ```
  */
@@ -42,10 +42,12 @@ export class Context<S extends State = DefaultState> {
   request: Request;
   response: Response = new Response("Not Found", { status: 404 });
   state: S;
+  url: URL;
   constructor(request: Request, connInfo: ConnInfo, state?: S) {
-    this.request = request;
     this.connInfo = connInfo;
+    this.request = request;
     this.state = state || {} as S;
+    this.url = new URL(request.url);
   }
 }
 

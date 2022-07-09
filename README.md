@@ -32,7 +32,7 @@ import {
 
 // You can optionally extend the default `Context` object or pass a `State` type.
 export class Ctx extends Context<{ start: number }> {
-  url = new URL(this.request.url);
+  pathname = this.url.pathname;
 }
 
 function date(ctx: Ctx) {
