@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-explicit-any
 import { compose, Context, createHandler, createRoute, listen } from "./mod.ts";
 
 // You can optionally extend the default `Context` object or pass a `State` type.
@@ -56,16 +57,16 @@ function log(ctx: Ctx) {
 const routeGet = createRoute("GET");
 const routeAllAndEverything = createRoute("ALL")({ pathname: "*" });
 const routePrivate = createRoute("DELETE", "POST")({ pathname: "/private/*" });
+
+const greetOrWelcome = compose(welcome, greet);
+
 const getSubdomain = routeGet({
   hostname: `{:subdomain.}+localhost`,
   pathname: "*",
 });
-
-const greetOrWelcome = compose(welcome, greet);
-
+const handleWelcome = routeGet({ pathname: "/{:name}?" })(greetOrWelcome);
 const handleDate = routeAllAndEverything(date);
 const handleVerify = routePrivate(verify);
-const handleWelcome = routeGet({ pathname: "/{:name}?" })(greetOrWelcome);
 const handleSubdomain = getSubdomain(sub);
 
 const mainHandler = compose(
@@ -73,8 +74,7 @@ const mainHandler = compose(
   handleWelcome,
   handleVerify,
   handleDate,
-  // deno-lint-ignore no-explicit-any
-) as any; // WTF!
+) as any; // TS WTF!
 const catchHandler = routeAllAndEverything(fix);
 const finallyHandler = routeAllAndEverything(log, setHeader);
 

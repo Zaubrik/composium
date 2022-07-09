@@ -86,16 +86,16 @@ function log(ctx: Ctx) {
 const routeGet = createRoute("GET");
 const routeAllAndEverything = createRoute("ALL")({ pathname: "*" });
 const routePrivate = createRoute("DELETE", "POST")({ pathname: "/private/*" });
+
+const greetOrWelcome = compose(welcome, greet);
+
 const getSubdomain = routeGet({
   hostname: `{:subdomain.}+localhost`,
   pathname: "*",
 });
-
-const greetOrWelcome = compose(welcome, greet);
-
+const handleWelcome = routeGet({ pathname: "/{:name}?" })(greetOrWelcome);
 const handleDate = routeAllAndEverything(date);
 const handleVerify = routePrivate(verify);
-const handleWelcome = routeGet({ pathname: "/{:name}?" })(greetOrWelcome);
 const handleSubdomain = getSubdomain(sub);
 
 const mainHandler = compose(
@@ -103,7 +103,7 @@ const mainHandler = compose(
   handleWelcome,
   handleVerify,
   handleDate,
-) as any; // WTF!
+) as any; // TS WTF!
 const catchHandler = routeAllAndEverything(fix);
 const finallyHandler = routeAllAndEverything(log, setHeader);
 
