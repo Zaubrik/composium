@@ -11,7 +11,7 @@ _minimal_ layer for **your own back-end framework**.
 ## URL Pattern
 
 The best way to learn and test the URL Pattern API is Zaubrik's free
-[URL Pattern User Interface](https://dev.zaubrik.com/composium/url_pattern).
+[URL Pattern User Interface](https://dev.zaubrik.com/composium/url-pattern).
 
 ## Documentation
 

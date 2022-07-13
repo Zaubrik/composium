@@ -1,10 +1,12 @@
 {
   "tasks": {
-    "test": "deno test --doc --unstable --allow-all"
+    "test": "deno test --doc --unstable --allow-all",
+    "bundle": "deno bundle static/src/index.ts > static/dist/index.js"
   },
   "compilerOptions": {
     "lib": ["esnext", "dom", "dom.iterable", "deno.ns"],
     "strict": true,
+    "importsNotUsedAsValues": "preserve",
     "useUnknownInCatchVariables": true,
     "noImplicitOverride": false,
     "checkJs": true
