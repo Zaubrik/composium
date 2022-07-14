@@ -2,6 +2,7 @@
   "tasks": {
     "test": "deno test --doc --unstable --allow-all",
     "bundle": "deno bundle url-pattern/src/index.ts > url-pattern/dist/index.js"
+    "serve": "deno run -A url-pattern/server.ts"
   },
   "compilerOptions": {
     "lib": ["esnext", "dom", "dom.iterable", "deno.ns"],

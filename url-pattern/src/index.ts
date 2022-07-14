@@ -101,9 +101,7 @@ function removeOnClick(event: Event) {
   bigPlusWrapper.remove();
 }
 
-// TODO: Replace `any` with `URLPatternInput` when the type exists.
-// deno-lint-ignore no-explicit-any
-function getUrlPatternInput(str: string): any {
+function getUrlPatternInput(str: string): URLPatternInput {
   let urlPatternInput = "";
   try {
     // deno-lint-ignore no-explicit-any
@@ -128,7 +126,6 @@ function matchUrlPattern(inputElement: HTMLInputElement) {
     const pattern = getUrlPatternInput(patternString);
     const input = getUrlPatternInput(inputElement.value);
     try {
-      // @ts-ignore because TS has not implemented URLPattern yet
       const urlPattern = new URLPattern(pattern);
       const match = urlPattern.exec(input);
       inputElement.title = JSON.stringify(match, null, 4);

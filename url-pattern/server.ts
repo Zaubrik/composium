@@ -6,7 +6,10 @@ function identity<X>(x: X) {
 }
 
 async function serveStatic(ctx: Context) {
-  ctx.response = await serveDir(ctx.request, { showDirListing: true });
+  ctx.response = await serveDir(ctx.request, {
+    showDirListing: true,
+    fsRoot: new URL("./", import.meta.url).pathname,
+  });
   return ctx;
 }
 
