@@ -102,7 +102,7 @@ Deno.test("createRoute", async function () {
 
 Deno.test("createHandler", async function () {
   assertEquals(
-    await (await createHandler(Ctx, { result: 10 })(mainHandler)(
+    await (await createHandler(Ctx, { state: { result: 10 } })(mainHandler)(
       subtract5DelayedHandler,
     )(
       finallyHandler,
@@ -110,7 +110,10 @@ Deno.test("createHandler", async function () {
     "28",
   );
   assertEquals(
-    await (await createHandler(Ctx, { result: 10 })(mainHandler, throwHandler)(
+    await (await createHandler(Ctx, { state: { result: 10 } })(
+      mainHandler,
+      throwHandler,
+    )(
       catchHandler,
     )(
       finallyHandler,
