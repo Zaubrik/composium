@@ -77,22 +77,29 @@ export function createRoute(...methods: Method[]) {
 }
 
 /**
- * A curried function which takes `Context` class, `mainHandlers`, `catchHandlers`
- * and `finallyHandlers` and returns in the end a `Handler` function which can be
- * passed to `listen`.
+ * A curried function which takes a `Context` class, `mainHandlers`,
+ * `catchHandlers` and `finallyHandlers` and returns in the end a `Handler`
+ * function which can be passed to the function `listen`. You can pass an initial
+ * `state` and it handles the request's method `HEAD` appropriately by default.
  * ```ts
- * createHandler(Ctx)(routeGet)(catchHandler)(finallyHandler)
+ * createHandler(Ctx)(mainHandler)(catchHandler)(finallyHandler)
  * ```
  */
 export function createHandler<C extends Context, S>(
   Context: new (request: Request, connInfo: ConnInfo, state?: S) => C,
-  state?: S,
+  { state, isHandlingHead = true }: { state?: S; isHandlingHead?: boolean } =
+    {},
 ) {
   return (...mainHandler: CtxHandler<C>[]) =>
     (...catchHandler: CtxHandler<C>[]) =>
       (...finallyHandler: CtxHandler<C>[]) =>
         async (request: Request, connInfo: ConnInfo): Promise<Response> => {
-          const ctx = new Context(request, connInfo, state);
+          const enabledHead = isHandlingHead && request.method === "HEAD";
+          const ctx = new Context(
+            enabledHead ? new Request(request, { method: "GET" }) : request,
+            connInfo,
+            state,
+          );
           try {
             await (compose(...mainHandler)(ctx));
           } catch (caught) {
@@ -106,7 +113,9 @@ export function createHandler<C extends Context, S>(
             }
           } finally {
             await (compose(...finallyHandler)(ctx));
-            return ctx.response;
+            return enabledHead
+              ? new Response(null, ctx.response)
+              : ctx.response;
           }
         };
 }
