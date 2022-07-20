@@ -103,14 +103,10 @@ export function createHandler<C extends Context, S>(
           try {
             await (compose(...mainHandler)(ctx));
           } catch (caught) {
-            if (caught instanceof Response) {
-              ctx.response = caught;
-            } else {
-              ctx.error = caught instanceof Error
-                ? caught
-                : new Error("[non-error thrown]");
-              await (compose(...catchHandler)(ctx));
-            }
+            ctx.error = caught instanceof Error
+              ? caught
+              : new Error("[non-error thrown]");
+            await (compose(...catchHandler)(ctx));
           } finally {
             await (compose(...finallyHandler)(ctx));
             return enabledHead
