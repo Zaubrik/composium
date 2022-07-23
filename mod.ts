@@ -67,7 +67,7 @@ export function createRoute(...methods: Method[]) {
           methods.includes("ALL") ||
           methods.includes(ctx.request.method as Method)
         ) {
-          if (ctx.params = urlPattern.exec(ctx.request.url)!) {
+          if (ctx.params = urlPattern.exec(ctx.url)!) {
             return await (compose<C | Promise<C>>(...handlers))(ctx);
           }
         }
