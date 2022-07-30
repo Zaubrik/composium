@@ -1,7 +1,7 @@
 // deno-lint-ignore-file
 // https://stackoverflow.com/questions/70050001/javascript-how-to-compose-asynchronous-functions
-const compose2 = (f: any, g: any) =>
-  async (...args: any) => f(await g(...args));
+const compose2 = (f: any, g: any) => async (...args: any) =>
+  f(await g(...args));
 
 // CREDIT: https://github.com/reduxjs/redux/blob/master/src/compose.ts
 type Func<T extends any[], R> = (...a: T) => R;

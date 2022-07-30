@@ -1,4 +1,3 @@
-// deno-lint-ignore-file no-unsafe-finally no-cond-assign
 import { compose, composeSync } from "./composition.ts";
 import {
   ConnInfo,
@@ -27,8 +26,9 @@ type State = Record<string | number | symbol, unknown>;
 type DefaultState = Record<string, any>;
 
 /**
- * The extendable `Context` is passed as only argument to your `CtxHandler`s.
- * You can optionally extend the default `Context` object or pass a `State` type.
+ * An instance of the extendable `Context` is passed as only argument to your
+ * `CtxHandler`s. You can optionally extend the default `Context` object or pass
+ * a `State` type.
  * ```ts
  * export class Ctx extends Context<{ start: number }> {
  *   pathname = this.url.pathname;
@@ -62,17 +62,18 @@ export function createRoute(...methods: Method[]) {
   return (urlPatternInput: URLPatternInput) => {
     const urlPattern = new URLPattern(urlPatternInput);
     return <C extends Context>(...handlers: CtxHandler<C>[]) =>
-      async (ctx: C): Promise<C> => {
-        if (
-          methods.includes("ALL") ||
-          methods.includes(ctx.request.method as Method)
-        ) {
-          if (ctx.params = urlPattern.exec(ctx.url)!) {
-            return await (compose<C | Promise<C>>(...handlers))(ctx);
-          }
+    async (ctx: C): Promise<C> => {
+      if (
+        methods.includes("ALL") ||
+        methods.includes(ctx.request.method as Method)
+      ) {
+        // deno-lint-ignore no-cond-assign
+        if (ctx.params = urlPattern.exec(ctx.url)!) {
+          return await (compose<C | Promise<C>>(...handlers))(ctx);
         }
-        return ctx;
-      };
+      }
+      return ctx;
+    };
   };
 }
 
@@ -91,29 +92,28 @@ export function createHandler<C extends Context, S>(
     {},
 ) {
   return (...mainHandler: CtxHandler<C>[]) =>
-    (...catchHandler: CtxHandler<C>[]) =>
-      (...finallyHandler: CtxHandler<C>[]) =>
-        async (request: Request, connInfo: ConnInfo): Promise<Response> => {
-          const enabledHead = isHandlingHead && request.method === "HEAD";
-          const ctx = new Context(
-            enabledHead ? new Request(request, { method: "GET" }) : request,
-            connInfo,
-            state,
-          );
-          try {
-            await (compose(...mainHandler)(ctx));
-          } catch (caught) {
-            ctx.error = caught instanceof Error
-              ? caught
-              : new Error("[non-error thrown]");
-            await (compose(...catchHandler)(ctx));
-          } finally {
-            await (compose(...finallyHandler)(ctx));
-            return enabledHead
-              ? new Response(null, ctx.response)
-              : ctx.response;
-          }
-        };
+  (...catchHandler: CtxHandler<C>[]) =>
+  (...finallyHandler: CtxHandler<C>[]) =>
+  async (request: Request, connInfo: ConnInfo): Promise<Response> => {
+    const enabledHead = isHandlingHead && request.method === "HEAD";
+    const ctx = new Context(
+      enabledHead ? new Request(request, { method: "GET" }) : request,
+      connInfo,
+      state,
+    );
+    try {
+      await (compose(...mainHandler)(ctx));
+    } catch (caught) {
+      ctx.error = caught instanceof Error
+        ? caught
+        : new Error("[non-error thrown]");
+      await (compose(...catchHandler)(ctx));
+    } finally {
+      await (compose(...finallyHandler)(ctx));
+      // deno-lint-ignore no-unsafe-finally
+      return enabledHead ? new Response(null, ctx.response) : ctx.response;
+    }
+  };
 }
 
 /**
@@ -121,7 +121,7 @@ export function createHandler<C extends Context, S>(
  * address, accepts incoming connections, upgrades them to TLS, and handles
  * requests.
  * ```ts
- * await app.listen({ port: 8080 })(handler)
+ * await listen({ port: 8080 })(handler)
  * ```
  */
 export function listen(options: ServeInit | ServeTlsInit) {
