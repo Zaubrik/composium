@@ -43,11 +43,14 @@ export class Context<S extends State = DefaultState> {
   response: Response = new Response("Not Found", { status: 404 });
   state: S;
   url: URL;
+  start: number;
+
   constructor(request: Request, connInfo: ConnInfo, state?: S) {
     this.connInfo = connInfo;
     this.request = request;
     this.state = state || {} as S;
     this.url = new URL(request.url);
+    this.start = NaN;
   }
 }
 
@@ -67,8 +70,9 @@ export function createRoute(...methods: Method[]) {
         methods.includes("ALL") ||
         methods.includes(ctx.request.method as Method)
       ) {
-        // deno-lint-ignore no-cond-assign
-        if (ctx.params = urlPattern.exec(ctx.url)!) {
+        const urlPatternResult = urlPattern.exec(ctx.url);
+        if (urlPatternResult) {
+          ctx.params = urlPatternResult;
           return await (compose<C | Promise<C>>(...handlers))(ctx);
         }
       }
@@ -77,13 +81,23 @@ export function createRoute(...methods: Method[]) {
   };
 }
 
+function setXResponseTimeHeader<C extends Context>(ctx: C): C {
+  const ms = Date.now() - ctx.start;
+  ctx.response.headers.set("X-Response-Time", `${ms}ms`);
+  return ctx;
+}
+
+function assertError(caught: unknown): Error {
+  return caught instanceof Error ? caught : new Error("[non-error thrown]");
+}
+
 /**
  * A curried function which takes a `Context` class, `mainHandlers`,
  * `catchHandlers` and `finallyHandlers` and returns in the end a `Handler`
  * function which can be passed to the function `listen`. You can pass an initial
  * `state` and it handles the request's method `HEAD` appropriately by default.
  * ```ts
- * createHandler(Ctx)(mainHandler)(catchHandler)(finallyHandler)
+ * createHandler(Ctx)(tryHandler)(catchHandler)(finallyHandler)
  * ```
  */
 export function createHandler<C extends Context, S>(
@@ -91,7 +105,7 @@ export function createHandler<C extends Context, S>(
   { state, isHandlingHead = true }: { state?: S; isHandlingHead?: boolean } =
     {},
 ) {
-  return (...mainHandler: CtxHandler<C>[]) =>
+  return (...tryHandler: CtxHandler<C>[]) =>
   (...catchHandler: CtxHandler<C>[]) =>
   (...finallyHandler: CtxHandler<C>[]) =>
   async (request: Request, connInfo: ConnInfo): Promise<Response> => {
@@ -102,15 +116,14 @@ export function createHandler<C extends Context, S>(
       state,
     );
     try {
-      await (compose(...mainHandler)(ctx));
+      ctx.start = Date.now();
+      await (compose(...tryHandler)(ctx));
     } catch (caught) {
-      ctx.error = caught instanceof Error
-        ? caught
-        : new Error("[non-error thrown]");
+      ctx.error = assertError(caught);
       await (compose(...catchHandler)(ctx));
     } finally {
       await (compose(...finallyHandler)(ctx));
-      // deno-lint-ignore no-unsafe-finally
+      setXResponseTimeHeader(ctx);
       return enabledHead ? new Response(null, ctx.response) : ctx.response;
     }
   };
