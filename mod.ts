@@ -93,11 +93,11 @@ function assertError(caught: unknown): Error {
 }
 
 /**
- * A curried function which takes a `Context` class, `mainHandlers`,
+ * A curried function which takes a `Context` class, `tryHandlers`,
  * `catchHandlers` and `finallyHandlers` and returns in the end a `Handler`
- * function which can be passed to the function `listen`. You can pass an initial
- * `state` object optionally. It also handles the request's method `HEAD`
- * appropriately by default.
+ * function which can be passed to `listen`. You can pass an initial `state`
+ * object optionally. It also handles the request's method `HEAD` appropriately
+ * and sets the `X-Response-Time` header.
  * ```ts
  * createHandler(Ctx)(tryHandler)(catchHandler)(finallyHandler)
  * ```
@@ -106,19 +106,19 @@ export function createHandler<C extends Context, S>(
   Context: new (request: Request, connInfo: ConnInfo, state?: S) => C,
   { state }: { state?: S } = {},
 ) {
-  return (...tryHandler: CtxHandler<C>[]) =>
-  (...catchHandler: CtxHandler<C>[]) =>
-  (...finallyHandler: CtxHandler<C>[]) =>
+  return (...tryHandlers: CtxHandler<C>[]) =>
+  (...catchHandlers: CtxHandler<C>[]) =>
+  (...finallyHandlers: CtxHandler<C>[]) =>
   async (request: Request, connInfo: ConnInfo): Promise<Response> => {
     const ctx = new Context(request, connInfo, state);
     try {
       ctx.start = Date.now();
-      await (compose(...tryHandler)(ctx));
+      await (compose(...tryHandlers)(ctx));
     } catch (caught) {
       ctx.error = assertError(caught);
-      await (compose(...catchHandler)(ctx));
+      await (compose(...catchHandlers)(ctx));
     } finally {
-      await (compose(...finallyHandler)(ctx));
+      await (compose(...finallyHandlers)(ctx));
       setXResponseTimeHeader(ctx);
     }
     return request.method === "HEAD"
