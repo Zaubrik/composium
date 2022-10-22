@@ -68,7 +68,8 @@ export function createRoute(...methods: Method[]) {
     async (ctx: C): Promise<C> => {
       if (
         methods.includes("ALL") ||
-        methods.includes(ctx.request.method as Method)
+        methods.includes(ctx.request.method as Method) ||
+        (ctx.request.method === "HEAD" && methods.includes("GET"))
       ) {
         const urlPatternResult = urlPattern.exec(ctx.url);
         if (urlPatternResult) {
@@ -95,26 +96,21 @@ function assertError(caught: unknown): Error {
  * A curried function which takes a `Context` class, `mainHandlers`,
  * `catchHandlers` and `finallyHandlers` and returns in the end a `Handler`
  * function which can be passed to the function `listen`. You can pass an initial
- * `state` and it handles the request's method `HEAD` appropriately by default.
+ * `state` object optionally. It also handles the request's method `HEAD`
+ * appropriately by default.
  * ```ts
  * createHandler(Ctx)(tryHandler)(catchHandler)(finallyHandler)
  * ```
  */
 export function createHandler<C extends Context, S>(
   Context: new (request: Request, connInfo: ConnInfo, state?: S) => C,
-  { state, isHandlingHead = true }: { state?: S; isHandlingHead?: boolean } =
-    {},
+  { state }: { state?: S } = {},
 ) {
   return (...tryHandler: CtxHandler<C>[]) =>
   (...catchHandler: CtxHandler<C>[]) =>
   (...finallyHandler: CtxHandler<C>[]) =>
   async (request: Request, connInfo: ConnInfo): Promise<Response> => {
-    const enabledHead = isHandlingHead && request.method === "HEAD";
-    const ctx = new Context(
-      enabledHead ? new Request(request, { method: "GET" }) : request,
-      connInfo,
-      state,
-    );
+    const ctx = new Context(request, connInfo, state);
     try {
       ctx.start = Date.now();
       await (compose(...tryHandler)(ctx));
@@ -125,7 +121,9 @@ export function createHandler<C extends Context, S>(
       await (compose(...finallyHandler)(ctx));
       setXResponseTimeHeader(ctx);
     }
-    return enabledHead ? new Response(null, ctx.response) : ctx.response;
+    return request.method === "HEAD"
+      ? new Response(null, ctx.response)
+      : ctx.response;
   };
 }
 
