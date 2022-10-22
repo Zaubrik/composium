@@ -109,7 +109,7 @@ const finallyHandler = routeAllAndEverything(log, setHeader);
 
 const handler = createHandler(Ctx)(mainHandler)(catchHandler)(finallyHandler);
 
-await listen({ port: 8080 })(handler);
+await listen(handler)({ port: 8080 });
 ```
 
 ## Dependency

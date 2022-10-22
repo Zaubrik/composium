@@ -124,21 +124,21 @@ export function createHandler<C extends Context, S>(
     } finally {
       await (compose(...finallyHandler)(ctx));
       setXResponseTimeHeader(ctx);
-      return enabledHead ? new Response(null, ctx.response) : ctx.response;
     }
+    return enabledHead ? new Response(null, ctx.response) : ctx.response;
   };
 }
 
 /**
- * A curried function which constructs a server, creates a listener on the given
- * address, accepts incoming connections, upgrades them to TLS, and handles
- * requests.
+ * A curried function which takes a `Handler` and `options`. It constructs a
+ * server, creates a listener on the given address, accepts incoming connections,
+ * upgrades them to TLS and handles requests.
  * ```ts
- * await listen({ port: 8080 })(handler)
+ * await listen(handler)({ port: 8080 })
  * ```
  */
-export function listen(options: ServeInit | ServeTlsInit) {
-  return async (handler: Handler) => {
+export function listen(handler: Handler) {
+  return async (options: ServeInit | ServeTlsInit) => {
     return "certFile" in options || "keyFile" in options
       ? await serveTls(handler, options)
       : await serve(handler, options);
