@@ -43,14 +43,12 @@ export class Context<S extends State = DefaultState> {
   response: Response = new Response("Not Found", { status: 404 });
   state: S;
   url: URL;
-  start: number;
 
   constructor(request: Request, connInfo: ConnInfo, state?: S) {
     this.connInfo = connInfo;
     this.request = request;
     this.state = state || {} as S;
     this.url = new URL(request.url);
-    this.start = NaN;
   }
 }
 
@@ -82,10 +80,9 @@ export function createRoute(...methods: Method[]) {
   };
 }
 
-function setXResponseTimeHeader<C extends Context>(ctx: C): C {
-  const ms = Date.now() - ctx.start;
+function setXResponseTimeHeader<C extends Context>(ctx: C, startTime: number) {
+  const ms = Date.now() - startTime;
   ctx.response.headers.set("X-Response-Time", `${ms}ms`);
-  return ctx;
 }
 
 function assertError(caught: unknown): Error {
@@ -95,31 +92,35 @@ function assertError(caught: unknown): Error {
 /**
  * A curried function which takes a `Context` class, `tryHandlers`,
  * `catchHandlers` and `finallyHandlers` and returns in the end a `Handler`
- * function which can be passed to `listen`. You can pass an initial `state`
- * object optionally. It also handles the request's method `HEAD` appropriately
- * and sets the `X-Response-Time` header.
+ * function which can be passed to `listen`. It also handles the HTTP method
+ * `HEAD` appropriately and sets the `X-Response-Time` header. You can pass
+ * an initial `state` object or disable the `X-Response-Time` header optionally.
  * ```ts
  * createHandler(Ctx)(tryHandler)(catchHandler)(finallyHandler)
  * ```
  */
 export function createHandler<C extends Context, S>(
   Context: new (request: Request, connInfo: ConnInfo, state?: S) => C,
-  { state }: { state?: S } = {},
+  { state, enableXResponseTimeHeader = true }: {
+    state?: S;
+    enableXResponseTimeHeader?: boolean;
+  } = {},
 ) {
+  let startTime = NaN;
   return (...tryHandlers: CtxHandler<C>[]) =>
   (...catchHandlers: CtxHandler<C>[]) =>
   (...finallyHandlers: CtxHandler<C>[]) =>
   async (request: Request, connInfo: ConnInfo): Promise<Response> => {
     const ctx = new Context(request, connInfo, state);
     try {
-      ctx.start = Date.now();
+      if (enableXResponseTimeHeader) startTime = Date.now();
       await (compose(...tryHandlers)(ctx));
     } catch (caught) {
       ctx.error = assertError(caught);
       await (compose(...catchHandlers)(ctx));
     } finally {
       await (compose(...finallyHandlers)(ctx));
-      setXResponseTimeHeader(ctx);
+      if (enableXResponseTimeHeader) setXResponseTimeHeader(ctx, startTime);
     }
     return request.method === "HEAD"
       ? new Response(null, ctx.response)
