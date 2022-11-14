@@ -111,7 +111,3 @@ const handler = createHandler(Ctx)(mainHandler)(catchHandler)(finallyHandler);
 
 await listen(handler)({ port: 8080 });
 ```
-
-## Dependency
-
-The `http` module from Deno's `std` library.

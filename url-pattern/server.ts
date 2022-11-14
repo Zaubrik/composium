@@ -1,6 +1,6 @@
 import { Context, createHandler, createRoute, listen } from "../mod.ts";
-import { serveDir } from "https://deno.land/std@0.160.0/http/file_server.ts";
-import { fromFileUrl } from "https://deno.land/std@0.160.0/path/mod.ts";
+import { serveDir } from "https://deno.land/std@0.164.0/http/file_server.ts";
+import { fromFileUrl } from "https://deno.land/std@0.164.0/path/mod.ts";
 
 function identity<X>(x: X) {
   return x;
