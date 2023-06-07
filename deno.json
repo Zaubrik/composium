@@ -7,7 +7,7 @@
   "compilerOptions": {
     "lib": ["esnext", "dom", "dom.iterable", "deno.ns"],
     "strict": true,
-    "verbatimModuleSyntax": true,
+    "verbatimModuleSyntax": false,
     "useUnknownInCatchVariables": true,
     "noImplicitOverride": false,
     "checkJs": true
