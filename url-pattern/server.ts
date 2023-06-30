@@ -1,6 +1,6 @@
 import { Context, createHandler, createRoute, listen } from "../mod.ts";
-import { serveDir } from "https://deno.land/std@0.164.0/http/file_server.ts";
-import { fromFileUrl } from "https://deno.land/std@0.164.0/path/mod.ts";
+import { serveDir } from "https://deno.land/std@0.192.0/http/file_server.ts";
+import { fromFileUrl } from "https://deno.land/std@0.192.0/path/mod.ts";
 
 function identity<X>(x: X) {
   return x;
@@ -14,7 +14,7 @@ async function serveStatic(ctx: Context) {
   return ctx;
 }
 
-const mainHandler = createRoute("GET")({ pathname: "*" })(serveStatic);
-const handler = createHandler(Context)(mainHandler)(identity)(identity);
+const mainMiddleware = createRoute("GET")({ pathname: "*" })(serveStatic);
+const handler = createHandler(Context)(mainMiddleware)(identity)(identity);
 
 await listen(handler)({ port: 8080 });

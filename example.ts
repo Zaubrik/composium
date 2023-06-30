@@ -69,15 +69,17 @@ const handleDate = routeAllAndEverything(date);
 const handleVerify = routePrivate(verify);
 const handleSubdomain = getSubdomain(sub);
 
-const mainHandler = compose(
+const mainMiddleware = compose(
   handleSubdomain,
   handleWelcome,
   handleVerify,
   handleDate,
 ) as any; // TS WTF!
-const catchHandler = routeAllAndEverything(fix);
-const finallyHandler = routeAllAndEverything(log, setHeader);
+const catchMiddleware = routeAllAndEverything(fix);
+const finallyMiddleware = routeAllAndEverything(log, setHeader);
 
-const handler = createHandler(Ctx)(mainHandler)(catchHandler)(finallyHandler);
+const handler = createHandler(Ctx)(mainMiddleware)(catchMiddleware)(
+  finallyMiddleware,
+);
 
 await listen(handler)({ port: 8080 });
