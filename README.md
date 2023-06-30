@@ -52,14 +52,14 @@ function greet(ctx: Ctx) {
 }
 
 function welcome(ctx: Ctx) {
-  const name = ctx.params.pathname.groups.name;
+  const name = ctx.result.pathname.groups.name;
   if (name) ctx.response = new Response(`Welcome, ${name}!`);
   return ctx;
 }
 
 function sub(ctx: Ctx) {
   ctx.response = new Response(
-    `What's up ${ctx.params.hostname.groups.subdomain}?`,
+    `What's up ${ctx.result.hostname.groups.subdomain}?`,
   );
   return ctx;
 }
