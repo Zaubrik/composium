@@ -1,7 +1,7 @@
 import { type ConnInfo, type Handler } from "./deps.ts";
 import { compose } from "./composition.ts";
-import { Middleware } from "./route.ts";
-import { Context } from "./context.ts";
+import { type Middleware } from "./route.ts";
+import { type Context } from "./context.ts";
 
 function setXResponseTimeHeader<C extends Context>(ctx: C, startTime: number) {
   const ms = Date.now() - startTime;
