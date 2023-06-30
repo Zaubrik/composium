@@ -8,7 +8,7 @@ function setXResponseTimeHeader<C extends Context>(ctx: C, startTime: number) {
   ctx.response.headers.set("X-Response-Time", `${ms}ms`);
 }
 
-function assertError(caught: unknown): Error {
+export function assertError(caught: unknown): Error {
   return caught instanceof Error ? caught : new Error("[non-error thrown]");
 }
 
