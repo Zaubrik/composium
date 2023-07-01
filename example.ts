@@ -1,4 +1,3 @@
-// deno-lint-ignore-file no-explicit-any
 import { compose, Context, createHandler, createRoute, listen } from "./mod.ts";
 
 // You can optionally extend the default `Context` object or pass a `State` type.
@@ -49,7 +48,11 @@ function setHeader(ctx: Ctx) {
 
 function log(ctx: Ctx) {
   const rt = ctx.response.headers.get("X-Response-Time");
-  console.log(`${ctx.request.method} ${ctx.url.pathname} - ${String(rt)}`);
+  console.log(
+    `${ctx.request.method} ${ctx.request.url} [${ctx.response.status}] - ${
+      String(rt)
+    }`,
+  );
   return ctx;
 }
 
@@ -74,12 +77,13 @@ const mainMiddleware = compose(
   handleWelcome,
   handleVerify,
   handleDate,
+  // deno-lint-ignore no-explicit-any
 ) as any; // TS WTF!
 const catchMiddleware = routeAllAndEverything(fix);
 const finallyMiddleware = routeAllAndEverything(log, setHeader);
 
-const handler = createHandler(Ctx)(mainMiddleware)(catchMiddleware)(
-  finallyMiddleware,
+const handler = createHandler(catchMiddleware)(finallyMiddleware)(Ctx)(
+  mainMiddleware,
 );
 
 await listen(handler)({ port: 8080 });

@@ -3,9 +3,25 @@ import { compose } from "./composition.ts";
 import { type Middleware } from "./route.ts";
 import { type Context } from "./context.ts";
 
+export type HandlerOptions<S> = {
+  state?: S;
+  enableXResponseTimeHeader?: boolean;
+  enableDefaultLogger?: boolean;
+  startTime?: number;
+};
+
 function setXResponseTimeHeader<C extends Context>(ctx: C, startTime: number) {
   const ms = Date.now() - startTime;
   ctx.response.headers.set("X-Response-Time", `${ms}ms`);
+}
+
+function log<C extends Context>(ctx: C) {
+  const rt = ctx.response.headers.get("X-Response-Time");
+  console.log(
+    `${ctx.request.method} ${ctx.request.url} [${ctx.response.status}] - ${
+      String(rt)
+    }`,
+  );
 }
 
 export function assertError(caught: unknown): Error {
@@ -13,26 +29,29 @@ export function assertError(caught: unknown): Error {
 }
 
 /**
- * A curried function which takes a `Context` class, `tryMiddlewares`,
- * `catchMiddlewares` and `finallyMiddlewares` and returns in the end a `Handler`
+ * A curried function which takes  `catchMiddlewares`, `finallyMiddlewares`,
+ * a `Context` class and `tryMiddlewares` and returns in the end a `Handler`
  * function which can be passed to `listen`. It also handles the HTTP method
- * `HEAD` appropriately and sets the `X-Response-Time` header. You can pass
- * an initial `state` object or disable the `X-Response-Time` header optionally.
+ * `HEAD` appropriately, sets the `X-Response-Time` header and logs to the
+ * console by default. Optionally you can pass an initial `state` object.
  * ```ts
- * createHandler(Ctx)(tryHandler)(catchHandler)(finallyHandler)
+ * createHandler(catchMiddlewares)(finallyMiddlewares)(Ctx)(tryMiddlewares)
  * ```
  */
-export function createHandler<C extends Context, S>(
-  Context: new (request: Request, connInfo: ConnInfo, state?: S) => C,
-  { state, enableXResponseTimeHeader = true }: {
-    state?: S;
-    enableXResponseTimeHeader?: boolean;
-  } = {},
+export function createHandler<C extends Context>(
+  ...catchMiddlewares: Middleware<C>[]
 ) {
-  let startTime = NaN;
-  return (...tryMiddlewares: Middleware<C>[]) =>
-  (...catchMiddlewares: Middleware<C>[]) =>
-  (...finallyMiddlewares: Middleware<C>[]): Handler =>
+  return <F extends C>(...finallyMiddlewares: Middleware<F>[]) =>
+  <S, T extends F>(
+    Context: new (request: Request, connInfo: ConnInfo, state?: S) => T,
+    {
+      state,
+      enableXResponseTimeHeader = true,
+      enableDefaultLogger = true,
+      startTime = NaN,
+    }: HandlerOptions<S> = {},
+  ) =>
+  (...tryMiddlewares: Middleware<T>[]): Handler =>
   async (request: Request, connInfo: ConnInfo): Promise<Response> => {
     const ctx = new Context(request, connInfo, state);
     try {
@@ -44,6 +63,7 @@ export function createHandler<C extends Context, S>(
     } finally {
       await (compose(...finallyMiddlewares)(ctx));
       if (enableXResponseTimeHeader) setXResponseTimeHeader(ctx, startTime);
+      if (enableDefaultLogger) log(ctx);
     }
     return request.method === "HEAD"
       ? new Response(null, ctx.response)

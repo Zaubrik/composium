@@ -28,22 +28,23 @@ function throwMiddleware(_ctx: Ctx): never {
 
 Deno.test("createHandler", async function () {
   assertEquals(
-    await (await createHandler(Ctx, { state: { result: 10 } })(mainMiddleware)(
+    await (await createHandler(
       subtract5DelayedMiddleware,
-    )(
-      finallyMiddleware,
-    )(request, connInfo)).text(),
+    )(finallyMiddleware)(Ctx, { state: { result: 10 } })(mainMiddleware)(
+      request,
+      connInfo,
+    )).text(),
     "28",
   );
   assertEquals(
-    await (await createHandler(Ctx, { state: { result: 10 } })(
-      mainMiddleware,
-      throwMiddleware,
-    )(
+    await (await createHandler(
       catchMiddleware,
     )(
       finallyMiddleware,
-    )(request, connInfo)).text(),
+    )(Ctx, { state: { result: 10 } })(mainMiddleware, throwMiddleware)(
+      request,
+      connInfo,
+    )).text(),
     "1",
   );
 });
