@@ -16,11 +16,8 @@ function setXResponseTimeHeader<C extends Context>(ctx: C, startTime: number) {
 }
 
 function log<C extends Context>(ctx: C) {
-  const rt = ctx.response.headers.get("X-Response-Time");
   console.log(
-    `${ctx.request.method} ${ctx.request.url} [${ctx.response.status}] - ${
-      String(rt)
-    }`,
+    `${ctx.request.method} ${ctx.request.url} [${ctx.response.status}]`,
   );
 }
 
@@ -62,8 +59,8 @@ export function createHandler<C extends Context>(
       await (compose(...catchMiddlewares)(ctx));
     } finally {
       await (compose(...finallyMiddlewares)(ctx));
-      if (enableXResponseTimeHeader) setXResponseTimeHeader(ctx, startTime);
       if (enableDefaultLogger) log(ctx);
+      if (enableXResponseTimeHeader) setXResponseTimeHeader(ctx, startTime);
     }
     return request.method === "HEAD"
       ? new Response(null, ctx.response)
