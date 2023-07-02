@@ -19,6 +19,7 @@ function log<C extends Context>(ctx: C) {
   console.log(
     `${ctx.request.method} ${ctx.request.url} [${ctx.response.status}]`,
   );
+  if (ctx.error) console.log(ctx.error);
 }
 
 export function assertError(caught: unknown): Error {
@@ -26,29 +27,27 @@ export function assertError(caught: unknown): Error {
 }
 
 /**
- * A curried function which takes  `catchMiddlewares`, `finallyMiddlewares`,
- * a `Context` class and `tryMiddlewares` and returns in the end a `Handler`
+ * A curried function which takes a `Context` class, `tryMiddlewares`,
+ * `catchMiddlewares` and `finallyMiddlewares` and returns in the end a `Handler`
  * function which can be passed to `listen`. It also handles the HTTP method
  * `HEAD` appropriately, sets the `X-Response-Time` header and logs to the
  * console by default. Optionally you can pass an initial `state` object.
  * ```ts
- * createHandler(catchMiddlewares)(finallyMiddlewares)(Ctx)(tryMiddlewares)
+ * createHandler(Ctx)(tryMiddlewares)(catchMiddlewares)(finallyMiddlewares)
  * ```
  */
-export function createHandler<C extends Context>(
-  ...catchMiddlewares: Middleware<C>[]
+export function createHandler<C extends Context, S>(
+  Context: new (request: Request, connInfo: ConnInfo, state?: S) => C,
+  {
+    state,
+    enableXResponseTimeHeader = true,
+    enableDefaultLogger = true,
+    startTime = NaN,
+  }: HandlerOptions<S> = {},
 ) {
-  return <F extends C>(...finallyMiddlewares: Middleware<F>[]) =>
-  <S, T extends F>(
-    Context: new (request: Request, connInfo: ConnInfo, state?: S) => T,
-    {
-      state,
-      enableXResponseTimeHeader = true,
-      enableDefaultLogger = true,
-      startTime = NaN,
-    }: HandlerOptions<S> = {},
-  ) =>
-  (...tryMiddlewares: Middleware<T>[]): Handler =>
+  return (...tryMiddlewares: Middleware<C>[]) =>
+  (...catchMiddlewares: Middleware<C>[]) =>
+  (...finallyMiddlewares: Middleware<C>[]): Handler =>
   async (request: Request, connInfo: ConnInfo): Promise<Response> => {
     const ctx = new Context(request, connInfo, state);
     try {

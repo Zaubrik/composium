@@ -1,4 +1,4 @@
-import { createRoute } from "./route.ts";
+import { createRoute, type Middleware } from "./route.ts";
 import { createHandler } from "./handler.ts";
 import { Context } from "./context.ts";
 
@@ -13,7 +13,11 @@ export {
 } from "./handler.ts";
 export { compose, composeSync } from "./composition.ts";
 
-export const createDefaultHandler = createHandler()()(Context);
+export function createDefaultHandler(
+  ...tryMiddlewares: Middleware<Context>[]
+) {
+  return createHandler(Context)(...tryMiddlewares)()();
+}
 
 export const createAllRoute = createRoute("ALL");
 export const createConnectRoute = createRoute("CONNECT");
