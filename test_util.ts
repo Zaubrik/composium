@@ -37,7 +37,7 @@ export const multiplyMiddleware = createMiddleware(multiply10);
 export const subtract5DelayedMiddleware = createMiddleware(subtract5Delayed);
 export const divide5DelayedMiddleware = createMiddleware(divide5Delayed);
 
-export const mainMiddleware = compose(
+export const tryMiddleware = compose(
   add10Middleware,
   divide5DelayedMiddleware,
   subtract5DelayedMiddleware,

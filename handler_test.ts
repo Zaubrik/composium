@@ -1,8 +1,8 @@
 import { Context, createHandler } from "./mod.ts";
 import {
   connInfo,
-  mainMiddleware,
   subtract5DelayedMiddleware,
+  tryMiddleware,
 } from "./test_util.ts";
 import { assertEquals } from "./test_deps.ts";
 
@@ -28,20 +28,23 @@ function throwMiddleware(_ctx: Ctx): never {
 
 Deno.test("createHandler", async function () {
   assertEquals(
-    await (await createHandler(
+    await (await createHandler(Ctx, { state: { result: 10 } })(tryMiddleware)(
       subtract5DelayedMiddleware,
-    )(finallyMiddleware)(Ctx, { state: { result: 10 } })(mainMiddleware)(
+    )(finallyMiddleware)(
       request,
       connInfo,
     )).text(),
     "28",
   );
   assertEquals(
-    await (await createHandler(
+    await (await createHandler(Ctx, { state: { result: 10 } })(
+      tryMiddleware,
+      throwMiddleware,
+    )(
       catchMiddleware,
     )(
       finallyMiddleware,
-    )(Ctx, { state: { result: 10 } })(mainMiddleware, throwMiddleware)(
+    )(
       request,
       connInfo,
     )).text(),

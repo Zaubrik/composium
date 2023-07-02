@@ -3,7 +3,7 @@ import {
   add10Middleware,
   connInfo,
   divide5DelayedMiddleware,
-  mainMiddleware,
+  tryMiddleware,
 } from "./test_util.ts";
 import { assertEquals } from "./test_deps.ts";
 
@@ -30,7 +30,7 @@ Deno.test("createRoute", async function () {
     12,
   );
   assertEquals(
-    (await createRoute("POST", "GET")({ pathname: "/books" })(mainMiddleware)(
+    (await createRoute("POST", "GET")({ pathname: "/books" })(tryMiddleware)(
       new Ctx(
         request,
         connInfo,
@@ -41,7 +41,7 @@ Deno.test("createRoute", async function () {
   );
   assertEquals(
     (await createRoute("POST", "DELETE")({ pathname: "/books" })(
-      mainMiddleware,
+      tryMiddleware,
     )(
       new Ctx(
         request,
@@ -52,7 +52,7 @@ Deno.test("createRoute", async function () {
     10,
   );
   assertEquals(
-    (await createRoute("GET")({ pathname: "/ups" })(mainMiddleware)(
+    (await createRoute("GET")({ pathname: "/ups" })(tryMiddleware)(
       new Ctx(
         request,
         connInfo,
