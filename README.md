@@ -29,7 +29,7 @@ import {
   listen,
 } from "./mod.ts";
 
-function welcome(ctx: Context) {
+function welcome<C extends Context>(ctx: C) {
   const name = ctx.result.pathname.groups.name || "nobody";
   ctx.response = new Response(`Welcome, ${name}!`);
   return ctx;
