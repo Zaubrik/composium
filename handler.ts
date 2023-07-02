@@ -6,18 +6,18 @@ import { type Context } from "./context.ts";
 export type HandlerOptions<S> = {
   state?: S;
   enableXResponseTimeHeader?: boolean;
-  enableDefaultLogger?: boolean;
-  startTime?: number;
+  enableLogger?: boolean;
 };
 
-function setXResponseTimeHeader<C extends Context>(ctx: C, startTime: number) {
-  const ms = Date.now() - startTime;
+function setXResponseTimeHeader<C extends Context>(ctx: C) {
+  const ms = Date.now() - ctx.startTime;
   ctx.response.headers.set("X-Response-Time", `${ms}ms`);
 }
 
 function log<C extends Context>(ctx: C) {
+  const rt = ctx.response.headers.get("X-Response-Time");
   console.log(
-    `${ctx.request.method} ${ctx.request.url} [${ctx.response.status}]`,
+    `${ctx.request.method} ${ctx.request.url} [${ctx.response.status}] - ${rt}`,
   );
   if (ctx.error) console.log(ctx.error);
 }
@@ -31,7 +31,8 @@ export function assertError(caught: unknown): Error {
  * `catchMiddlewares` and `finallyMiddlewares` and returns in the end a `Handler`
  * function which can be passed to `listen`. It also handles the HTTP method
  * `HEAD` appropriately, sets the `X-Response-Time` header and logs to the
- * console by default. Optionally you can pass an initial `state` object.
+ * console by default. Optionally you can enable the logger or pass an
+ * initial `state` object.
  * ```ts
  * createHandler(Ctx)(tryMiddlewares)(catchMiddlewares)(finallyMiddlewares)
  * ```
@@ -41,8 +42,7 @@ export function createHandler<C extends Context, S>(
   {
     state,
     enableXResponseTimeHeader = true,
-    enableDefaultLogger = true,
-    startTime = NaN,
+    enableLogger = false,
   }: HandlerOptions<S> = {},
 ) {
   return (...tryMiddlewares: Middleware<C>[]) =>
@@ -51,15 +51,15 @@ export function createHandler<C extends Context, S>(
   async (request: Request, connInfo: ConnInfo): Promise<Response> => {
     const ctx = new Context(request, connInfo, state);
     try {
-      if (enableXResponseTimeHeader) startTime = Date.now();
+      ctx.startTime = Date.now();
       await (compose(...tryMiddlewares)(ctx));
     } catch (caught) {
       ctx.error = assertError(caught);
       await (compose(...catchMiddlewares)(ctx));
     } finally {
       await (compose(...finallyMiddlewares)(ctx));
-      if (enableDefaultLogger) log(ctx);
-      if (enableXResponseTimeHeader) setXResponseTimeHeader(ctx, startTime);
+      if (enableXResponseTimeHeader) setXResponseTimeHeader(ctx);
+      if (enableLogger) log(ctx);
     }
     return request.method === "HEAD"
       ? new Response(null, ctx.response)

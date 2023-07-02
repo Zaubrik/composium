@@ -23,6 +23,7 @@ export class Context<S extends State = DefaultState> {
   response: Response = new Response("Not Found", { status: 404 });
   state: S;
   url: URL;
+  startTime = NaN;
 
   constructor(request: Request, connInfo: ConnInfo, state?: S) {
     this.connInfo = connInfo;

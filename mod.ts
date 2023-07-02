@@ -16,7 +16,9 @@ export { compose, composeSync } from "./composition.ts";
 export function createDefaultHandler(
   ...tryMiddlewares: Middleware<Context>[]
 ) {
-  return createHandler(Context)(...tryMiddlewares)()();
+  return createHandler(Context, { enableLogger: true })(
+    ...tryMiddlewares,
+  )()();
 }
 
 export const createAllRoute = createRoute("ALL");
