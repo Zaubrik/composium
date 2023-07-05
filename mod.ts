@@ -2,14 +2,12 @@ import { createRoute, type Middleware } from "./route.ts";
 import { createHandler } from "./handler.ts";
 import { Context } from "./context.ts";
 
-export { listen } from "./server.ts";
 export { Context } from "./context.ts";
 export { createRoute, type Method, type Middleware } from "./route.ts";
 export {
   assertError,
   createHandler,
-  type Handler,
-  type HandlerOptions,
+  type ServerHandlerOptions,
 } from "./handler.ts";
 export { compose, composeSync } from "./composition.ts";
 

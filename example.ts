@@ -1,4 +1,4 @@
-import { compose, Context, createHandler, createRoute, listen } from "./mod.ts";
+import { compose, Context, createHandler, createRoute } from "./mod.ts";
 
 // You can optionally extend the default `Context` object or pass a `State` type.
 export class Ctx extends Context<{ start: number }> {
@@ -86,4 +86,4 @@ const handler = createHandler(Ctx)(tryMiddleware)(catchMiddleware)(
   finallyMiddleware,
 );
 
-await listen(handler)({ port: 8080 });
+Deno.serve(handler);

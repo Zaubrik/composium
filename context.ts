@@ -1,5 +1,3 @@
-import { type ConnInfo } from "./deps.ts";
-
 /** Any object can be assigned to the property `state` of the `Context` object. */
 type State = Record<string | number | symbol, unknown>;
 // deno-lint-ignore no-explicit-any
@@ -16,7 +14,7 @@ type DefaultState = Record<string, any>;
  * ```
  */
 export class Context<S extends State = DefaultState> {
-  connInfo: ConnInfo;
+  connInfo: Deno.ServeHandlerInfo;
   error: Error | null = null;
   result: URLPatternResult = {} as URLPatternResult;
   request: Request;
@@ -25,7 +23,7 @@ export class Context<S extends State = DefaultState> {
   url: URL;
   startTime = NaN;
 
-  constructor(request: Request, connInfo: ConnInfo, state?: S) {
+  constructor(request: Request, connInfo: Deno.ServeHandlerInfo, state?: S) {
     this.connInfo = connInfo;
     this.request = request;
     this.state = state || {} as S;

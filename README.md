@@ -22,12 +22,7 @@ deno doc https://deno.land/x/composium/mod.ts
 ## Example
 
 ```ts
-import {
-  Context,
-  createDefaultHandler,
-  createGetRoute,
-  listen,
-} from "./mod.ts";
+import { Context, createDefaultHandler, createGetRoute } from "./mod.ts";
 
 function welcome<C extends Context>(ctx: C) {
   const name = ctx.result.pathname.groups.name || "nobody";
@@ -38,7 +33,7 @@ function welcome<C extends Context>(ctx: C) {
 const route = createGetRoute({ pathname: "/{:name}?" })(welcome);
 const handler = createDefaultHandler(route);
 
-await listen(handler)({ port: 8080 });
+Deno.serve(handler);
 
 // curl http://localhost:8080/Joe
 // Welcome, Joe!

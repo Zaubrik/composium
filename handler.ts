@@ -1,9 +1,8 @@
-import { type ConnInfo, type Handler } from "./deps.ts";
 import { compose } from "./composition.ts";
 import { type Middleware } from "./route.ts";
 import { type Context } from "./context.ts";
 
-export type HandlerOptions<S> = {
+export type ServerHandlerOptions<S> = {
   state?: S;
   enableXResponseTimeHeader?: boolean;
   enableLogger?: boolean;
@@ -38,17 +37,24 @@ export function assertError(caught: unknown): Error {
  * ```
  */
 export function createHandler<C extends Context, S>(
-  Context: new (request: Request, connInfo: ConnInfo, state?: S) => C,
+  Context: new (
+    request: Request,
+    connInfo: Deno.ServeHandlerInfo,
+    state?: S,
+  ) => C,
   {
     state,
     enableXResponseTimeHeader = true,
     enableLogger = false,
-  }: HandlerOptions<S> = {},
+  }: ServerHandlerOptions<S> = {},
 ) {
   return (...tryMiddlewares: Middleware<C>[]) =>
   (...catchMiddlewares: Middleware<C>[]) =>
-  (...finallyMiddlewares: Middleware<C>[]): Handler =>
-  async (request: Request, connInfo: ConnInfo): Promise<Response> => {
+  (...finallyMiddlewares: Middleware<C>[]): Deno.ServeHandler =>
+  async (
+    request: Request,
+    connInfo: Deno.ServeHandlerInfo,
+  ): Promise<Response> => {
     const ctx = new Context(request, connInfo, state);
     try {
       ctx.startTime = Date.now();
@@ -66,5 +72,3 @@ export function createHandler<C extends Context, S>(
       : ctx.response;
   };
 }
-
-export type { Handler };
