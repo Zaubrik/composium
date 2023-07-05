@@ -11,6 +11,13 @@ export {
 } from "./handler.ts";
 export { compose, composeSync } from "./composition.ts";
 
+/**
+ * Takes a `Middleware` and returns a `Deno.ServeHandler`.
+ * ```ts
+ * const handler = createDefaultHandler(tryMiddlewares)
+ * Deno.serve(handler);
+ * ```
+ */
 export function createDefaultHandler(
   ...tryMiddlewares: Middleware<Context>[]
 ) {

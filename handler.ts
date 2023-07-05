@@ -27,13 +27,14 @@ export function assertError(caught: unknown): Error {
 
 /**
  * A curried function which takes a `Context` class, `tryMiddlewares`,
- * `catchMiddlewares` and `finallyMiddlewares` and returns in the end a `Handler`
- * function which can be passed to `listen`. It also handles the HTTP method
+ * `catchMiddlewares` and `finallyMiddlewares` and returns a `Deno.ServeHandler`
+ * which can be passed to `Deno.serve`. It also handles the HTTP method
  * `HEAD` appropriately, sets the `X-Response-Time` header and logs to the
  * console by default. Optionally you can enable the logger or pass an
  * initial `state` object.
  * ```ts
- * createHandler(Ctx)(tryMiddlewares)(catchMiddlewares)(finallyMiddlewares)
+ * const handler = createHandler(Ctx)(tryMiddlewares)(catchMiddlewares)(finallyMiddlewares)
+ * Deno.serve(handler);
  * ```
  */
 export function createHandler<C extends Context, S>(
