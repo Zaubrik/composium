@@ -30,8 +30,7 @@ export function assertError(caught: unknown): Error {
  * `catchMiddlewares` and `finallyMiddlewares` and returns a `Deno.ServeHandler`
  * which can be passed to `Deno.serve`. It also handles the HTTP method
  * `HEAD` appropriately, sets the `X-Response-Time` header and logs to the
- * console by default. Optionally you can enable the logger or pass an
- * initial `state` object.
+ * console by default. Optionally, you can pass an initial `state` object.
  * ```ts
  * const handler = createHandler(Ctx)(tryMiddlewares)(catchMiddlewares)(finallyMiddlewares)
  * Deno.serve(handler);
