@@ -38,3 +38,8 @@ Deno.serve(handler);
 // curl http://localhost:8080/Joe
 // Welcome, Joe!
 ```
+
+## Discord
+
+Feel free to ask questions and start discussions in our
+[discord server](https://discord.gg/6spYphKXAt).
