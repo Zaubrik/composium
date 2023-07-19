@@ -58,12 +58,12 @@ export function createHandler<C extends Context, S>(
     const ctx = new Context(request, connInfo, state);
     try {
       ctx.startTime = Date.now();
-      await (compose(...tryMiddlewares)(ctx));
+      await compose(...tryMiddlewares)(ctx);
     } catch (caught) {
       ctx.error = assertError(caught);
-      await (compose(...catchMiddlewares)(ctx));
+      await compose(...catchMiddlewares)(ctx);
     } finally {
-      await (compose(...finallyMiddlewares)(ctx));
+      await compose(...finallyMiddlewares)(ctx);
       if (enableXResponseTimeHeader) setXResponseTimeHeader(ctx);
       if (enableLogger) log(ctx);
     }

@@ -36,7 +36,7 @@ export function createRoute(...methods: Method[]) {
         const urlPatternResult = urlPattern.exec(ctx.url);
         if (urlPatternResult) {
           ctx.result = urlPatternResult;
-          return await (compose<C | Promise<C>>(...middlewares))(ctx);
+          return await compose<C | Promise<C>>(...middlewares)(ctx);
         }
       }
       return ctx;
