@@ -6,6 +6,7 @@ export type ServerHandlerOptions<S> = {
   state?: S;
   enableXResponseTimeHeader?: boolean;
   enableLogger?: boolean;
+  writePid?: boolean;
 };
 
 function setXResponseTimeHeader<C extends Context>(ctx: C) {
@@ -46,8 +47,15 @@ export function createHandler<C extends Context, S>(
     state,
     enableXResponseTimeHeader = true,
     enableLogger = false,
+    writePid = true,
   }: ServerHandlerOptions<S> = {},
 ) {
+  if (writePid) {
+    Deno.writeTextFileSync(
+      new URL("./.pid", Deno.mainModule).href,
+      Deno.pid.toString(),
+    );
+  }
   return (...tryMiddlewares: Middleware<C>[]) =>
   (...catchMiddlewares: Middleware<C>[]) =>
   (...finallyMiddlewares: Middleware<C>[]): Deno.ServeHandler =>
