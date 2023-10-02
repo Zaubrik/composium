@@ -52,7 +52,7 @@ export function createHandler<C extends Context, S>(
 ) {
   if (writePid) {
     Deno.writeTextFileSync(
-      new URL("./.pid", Deno.mainModule).href,
+      new URL("./.pid", Deno.mainModule).pathname,
       Deno.pid.toString(),
     );
   }
