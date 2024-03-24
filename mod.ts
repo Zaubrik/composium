@@ -4,11 +4,7 @@ import { Context } from "./context.ts";
 
 export { Context } from "./context.ts";
 export { createRoute, type Method, type Middleware } from "./route.ts";
-export {
-  assertError,
-  createHandler,
-  type ServerHandlerOptions,
-} from "./handler.ts";
+export { assertError, createHandler, type HandlerOptions } from "./handler.ts";
 export { compose, composeSync } from "./composition.ts";
 
 /**

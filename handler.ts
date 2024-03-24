@@ -2,11 +2,11 @@ import { compose } from "./composition.ts";
 import { type Middleware } from "./route.ts";
 import { type Context } from "./context.ts";
 
-export type ServerHandlerOptions<S> = {
+export type HandlerOptions<S> = {
   state?: S;
   enableXResponseTimeHeader?: boolean;
   enableLogger?: boolean;
-  pid?: { path: string; name?: string; append?: boolean };
+  pid?: { path: string | URL; name?: string; append?: boolean };
 };
 
 function setXResponseTimeHeader<C extends Context>(ctx: C) {
@@ -48,7 +48,7 @@ export function createHandler<C extends Context, S>(
     enableXResponseTimeHeader = true,
     enableLogger = false,
     pid,
-  }: ServerHandlerOptions<S> = {},
+  }: HandlerOptions<S> = {},
 ) {
   if (pid?.path) {
     const pidString = pid.name
