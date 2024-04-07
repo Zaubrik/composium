@@ -32,3 +32,16 @@ export const createPatchRoute = createRoute("PATCH");
 export const createPostRoute = createRoute("POST");
 export const createPutRoute = createRoute("PUT");
 export const createTraceRoute = createRoute("TRACE");
+
+export const routes = {
+  all: createAllRoute,
+  connect: createConnectRoute,
+  delete: createDeleteRoute,
+  get: createGetRoute,
+  head: createHeadRoute,
+  options: createOptionsRoute,
+  patch: createPatchRoute,
+  post: createPostRoute,
+  put: createPutRoute,
+  trace: createTraceRoute,
+};
